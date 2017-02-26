@@ -1,0 +1,98 @@
+---
+title: "Plots summarizing normal means comparisons"
+author: "Matthew Stephens"
+date: 2017-02-14
+output: html_document
+---
+
+```{r read-chunk, include=FALSE, cache=FALSE}
+knitr::read_chunk("chunks.R")
+```
+
+```{r knitr-opts-chunk, include=FALSE}
+```
+
+**Last updated:** `r Sys.Date()`
+
+**Code version:** `r workflowr::extract_commit(".", 1)$sha1`
+
+
+## Summary
+
+Here I want to plot some graphs summarizing results of comparing methods for the normalmeans problem.
+
+```{r}
+load("../output/dsc-normalmeans-files/res.RData")
+xtabs(RMSE ~ scenario + method, data=res)
+
+```
+
+
+Extract the sample size n from the names
+```{r}
+strip = function(x){substr(x,3,nchar(x))}
+pattern=  "-n[0-9]+"
+nn = regmatches(res$scenario,regexpr(pattern, res$scenario))
+res$n = as.numeric(lapply(nn,strip))
+res$name = unlist(strsplit(res$scenario,"-n[0-9]+")) 
+res$MSE= res$RMSE^2
+```
+
+```{r}
+xtabs(RMSE ~ n + method + name , data=res)
+
+```
+
+Puzzling about this plot: why does the bayes rule vary with n?
+```{r rmse_plot, dev='pdf', crop=TRUE}
+ALPHALEVEL=0.2
+library(ggplot2)
+
+stat_sum_single <- function(fun, geom="point", ...) {
+  stat_summary(fun.y=fun, colour="red", geom=geom, size = 3, ...)
+}
+
+rmse_plot=ggplot2::ggplot(res,
+         aes(log10(n),RMSE,colour=method,alpha=ALPHALEVEL)) + stat_summary(fun.y=mean,geom="line") + 
+  facet_grid(. ~ name) + 
+  guides(alpha=FALSE) +
+  xlab("log10(n)") +
+  ylab("RMSE") 
+print(rmse_plot)
+```
+
+Maybe Bayes won't vary by n without square-root.
+```{r mse_plot, dev='pdf', crop=TRUE}
+ALPHALEVEL=0.2
+library(ggplot2)
+
+stat_sum_single <- function(fun, geom="point", ...) {
+  stat_summary(fun.y=fun, colour="red", geom=geom, size = 3, ...)
+}
+
+mse_plot=ggplot2::ggplot(res,
+         aes(log10(n),MSE,colour=method,alpha=ALPHALEVEL)) + stat_summary(fun.y=mean,geom="line") + 
+  facet_grid(. ~ name) + 
+  guides(alpha=FALSE) +
+  xlab("log10(n)") +
+  ylab("MSE") 
+print(mse_plot)
+```
+
+Plot boxplot of results for n=1000, and the main three methods of interest: ash.ns, ebayesthresh and horseshoe. Notice that horseshoe does less well than ebayesthresh, contrasting with results
+in the original paper. I believe this is because they did a different problem, where sigma (errror variance) is considered unknown and to be estimated. 
+```{r}
+bplot = function(res,scen.subset = c("big-normal-n1000","spiky-n1000","near-normal-n1000","flat-top-n1000","near-normal-nn-n1000"),
+                   methods.subset = c("ash.ns","ebayesthresh","horseshoe"), criteria="MSE"){
+  res.filter = dplyr::filter(res,scenario %in% scen.subset & method %in% methods.subset)
+  
+  res.filter$value = res.filter[[criteria]] 
+        ggplot(res.filter,aes(method,value,color=method)) +   geom_boxplot() + facet_grid(.~scenario)
+}
+bplot(res)
+```
+
+## Session Information
+
+```{r session-info}
+```
