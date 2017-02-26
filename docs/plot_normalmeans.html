@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+<meta name="author" content="Matthew Stephens" />
+
+<meta name="date" content="2017-02-14" />
+
+<title>Plots summarizing normal means comparisons</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-1.1/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-1.1/highlight.js"></script>
+<link href="site_libs/font-awesome-4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+  padding-left: 25px;
+  text-indent: 0;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">dscr-normalmeans</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/jdblischak/workflowr">
+    <span class="fa fa-github"></span>
+     
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Plots summarizing normal means comparisons</h1>
+<h4 class="author"><em>Matthew Stephens</em></h4>
+<h4 class="date"><em>2017-02-14</em></h4>
+
+</div>
+
+
+<p><strong>Last updated:</strong> 2017-02-26</p>
+<p><strong>Code version:</strong> 6dcc33e</p>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p>Here I want to plot some graphs summarizing results of comparing methods for the normalmeans problem.</p>
+<pre class="r"><code>load(&quot;../output/dsc-normalmeans-files/res.RData&quot;)
+xtabs(RMSE ~ scenario + method, data=res)</code></pre>
+<pre><code>                      method
+scenario                  ash.n   ash.ns    bayes ebayesthresh horseshoe
+  big-normal-n10       75.82732 73.34213 69.57260     73.00088  74.43192
+  big-normal-n100      78.86309 78.77238 78.06530     79.02551  82.05028
+  big-normal-n1000     78.36515 78.41278 78.25631     78.82545  82.17297
+  bimodal-n10          91.02702 74.79094 68.65849     75.43521  79.40930
+  bimodal-n100         81.72897 78.67014 76.21571     80.33853  85.85379
+  bimodal-n1000        77.91208 77.72032 76.14577     79.54457  84.88567
+  flat-top-n10         69.62684 60.79747 54.67652     60.46484  61.63404
+  flat-top-n100        63.58898 59.61876 58.03188     59.93322  63.91464
+  flat-top-n1000       59.43837 58.88332 58.47994     59.37016  63.04256
+  near-normal-n10      66.00231 60.77944 56.64028     60.05271  60.22923
+  near-normal-n100     65.47495 63.88990 62.70685     63.70520  65.49208
+  near-normal-n1000    63.42340 63.25884 62.96679     63.16332  64.84537
+  near-normal-nn-n1000 81.48900 80.98425 80.77214     81.00041  85.62830
+  skew-n10             70.14163 65.10493 58.56113     63.85197  63.23798
+  skew-n100            70.94677 69.92390 67.67473     69.78746  71.00922
+  skew-n1000           69.07462 68.99737 67.60921     68.95233  70.70466
+  spiky-n10            44.84726 45.34599 42.08105     45.05319  43.30985
+  spiky-n100           51.08843 50.77528 49.19201     50.58997  51.05392
+  spiky-n1000          50.54088 50.52648 50.17803     50.44794  50.99879
+  t4-n10               97.38599 82.99508  0.00000     82.55729  85.22902
+  t4-n100              84.25060 80.41172  0.00000     80.37822  83.86872
+  t4-n1000             79.32361 78.75069  0.00000     78.83558  82.58498</code></pre>
+<p>Extract the sample size n from the names</p>
+<pre class="r"><code>strip = function(x){substr(x,3,nchar(x))}
+pattern=  &quot;-n[0-9]+&quot;
+nn = regmatches(res$scenario,regexpr(pattern, res$scenario))
+res$n = as.numeric(lapply(nn,strip))
+res$name = unlist(strsplit(res$scenario,&quot;-n[0-9]+&quot;)) 
+res$MSE= res$RMSE^2</code></pre>
+<pre class="r"><code>xtabs(RMSE ~ n + method + name , data=res)</code></pre>
+<pre><code>, , name = big-normal
+
+      method
+n         ash.n   ash.ns    bayes ebayesthresh horseshoe
+  10   75.82732 73.34213 69.57260     73.00088  74.43192
+  100  78.86309 78.77238 78.06530     79.02551  82.05028
+  1000 78.36515 78.41278 78.25631     78.82545  82.17297
+
+, , name = bimodal
+
+      method
+n         ash.n   ash.ns    bayes ebayesthresh horseshoe
+  10   91.02702 74.79094 68.65849     75.43521  79.40930
+  100  81.72897 78.67014 76.21571     80.33853  85.85379
+  1000 77.91208 77.72032 76.14577     79.54457  84.88567
+
+, , name = flat-top
+
+      method
+n         ash.n   ash.ns    bayes ebayesthresh horseshoe
+  10   69.62684 60.79747 54.67652     60.46484  61.63404
+  100  63.58898 59.61876 58.03188     59.93322  63.91464
+  1000 59.43837 58.88332 58.47994     59.37016  63.04256
+
+, , name = near-normal
+
+      method
+n         ash.n   ash.ns    bayes ebayesthresh horseshoe
+  10   66.00231 60.77944 56.64028     60.05271  60.22923
+  100  65.47495 63.88990 62.70685     63.70520  65.49208
+  1000 63.42340 63.25884 62.96679     63.16332  64.84537
+
+, , name = near-normal-nn
+
+      method
+n         ash.n   ash.ns    bayes ebayesthresh horseshoe
+  10    0.00000  0.00000  0.00000      0.00000   0.00000
+  100   0.00000  0.00000  0.00000      0.00000   0.00000
+  1000 81.48900 80.98425 80.77214     81.00041  85.62830
+
+, , name = skew
+
+      method
+n         ash.n   ash.ns    bayes ebayesthresh horseshoe
+  10   70.14163 65.10493 58.56113     63.85197  63.23798
+  100  70.94677 69.92390 67.67473     69.78746  71.00922
+  1000 69.07462 68.99737 67.60921     68.95233  70.70466
+
+, , name = spiky
+
+      method
+n         ash.n   ash.ns    bayes ebayesthresh horseshoe
+  10   44.84726 45.34599 42.08105     45.05319  43.30985
+  100  51.08843 50.77528 49.19201     50.58997  51.05392
+  1000 50.54088 50.52648 50.17803     50.44794  50.99879
+
+, , name = t4
+
+      method
+n         ash.n   ash.ns    bayes ebayesthresh horseshoe
+  10   97.38599 82.99508  0.00000     82.55729  85.22902
+  100  84.25060 80.41172  0.00000     80.37822  83.86872
+  1000 79.32361 78.75069  0.00000     78.83558  82.58498</code></pre>
+<p>Puzzling about this plot: why does the bayes rule vary with n?</p>
+<pre class="r"><code>ALPHALEVEL=0.2
+library(ggplot2)
+
+stat_sum_single &lt;- function(fun, geom=&quot;point&quot;, ...) {
+  stat_summary(fun.y=fun, colour=&quot;red&quot;, geom=geom, size = 3, ...)
+}
+
+rmse_plot=ggplot2::ggplot(res,
+         aes(log10(n),RMSE,colour=method,alpha=ALPHALEVEL)) + stat_summary(fun.y=mean,geom=&quot;line&quot;) + 
+  facet_grid(. ~ name) + 
+  guides(alpha=FALSE) +
+  xlab(&quot;log10(n)&quot;) +
+  ylab(&quot;RMSE&quot;) 
+print(rmse_plot)</code></pre>
+<pre><code>Warning: Removed 311 rows containing non-finite values (stat_summary).</code></pre>
+<pre><code>geom_path: Each group consists of only one observation. Do you need to
+adjust the group aesthetic?</code></pre>
+<p><img src="figure/plot_normalmeans.Rmd/rmse_plot-1.pdf" width="672" style="display: block; margin: auto;" /></p>
+<p>Maybe Bayes won’t vary by n without square-root.</p>
+<pre class="r"><code>ALPHALEVEL=0.2
+library(ggplot2)
+
+stat_sum_single &lt;- function(fun, geom=&quot;point&quot;, ...) {
+  stat_summary(fun.y=fun, colour=&quot;red&quot;, geom=geom, size = 3, ...)
+}
+
+mse_plot=ggplot2::ggplot(res,
+         aes(log10(n),MSE,colour=method,alpha=ALPHALEVEL)) + stat_summary(fun.y=mean,geom=&quot;line&quot;) + 
+  facet_grid(. ~ name) + 
+  guides(alpha=FALSE) +
+  xlab(&quot;log10(n)&quot;) +
+  ylab(&quot;MSE&quot;) 
+print(mse_plot)</code></pre>
+<pre><code>Warning: Removed 311 rows containing non-finite values (stat_summary).</code></pre>
+<pre><code>geom_path: Each group consists of only one observation. Do you need to
+adjust the group aesthetic?</code></pre>
+<p><img src="figure/plot_normalmeans.Rmd/mse_plot-1.pdf" width="672" style="display: block; margin: auto;" /></p>
+<p>Plot boxplot of results for n=1000, and the main three methods of interest: ash.ns, ebayesthresh and horseshoe. Notice that horseshoe does less well than ebayesthresh, contrasting with results in the original paper. I believe this is because they did a different problem, where sigma (errror variance) is considered unknown and to be estimated.</p>
+<pre class="r"><code>bplot = function(res,scen.subset = c(&quot;big-normal-n1000&quot;,&quot;spiky-n1000&quot;,&quot;near-normal-n1000&quot;,&quot;flat-top-n1000&quot;,&quot;near-normal-nn-n1000&quot;),
+                   methods.subset = c(&quot;ash.ns&quot;,&quot;ebayesthresh&quot;,&quot;horseshoe&quot;), criteria=&quot;MSE&quot;){
+  res.filter = dplyr::filter(res,scenario %in% scen.subset &amp; method %in% methods.subset)
+  
+  res.filter$value = res.filter[[criteria]] 
+        ggplot(res.filter,aes(method,value,color=method)) +   geom_boxplot() + facet_grid(.~scenario)
+}
+bplot(res)</code></pre>
+<pre><code>Warning: Removed 10 rows containing non-finite values (stat_boxplot).</code></pre>
+<p><img src="figure/plot_normalmeans.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+</div>
+<div id="session-information" class="section level2">
+<h2>Session Information</h2>
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.3.2 (2016-10-31)
+Platform: x86_64-apple-darwin13.4.0 (64-bit)
+Running under: OS X El Capitan 10.11.6
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+[1] ggplot2_2.2.1
+
+loaded via a namespace (and not attached):
+ [1] Rcpp_0.12.9      knitr_1.15.1     magrittr_1.5     workflowr_0.3.0 
+ [5] munsell_0.4.3    xtable_1.8-2     colorspace_1.3-2 R6_2.2.0        
+ [9] stringr_1.2.0    plyr_1.8.4       dplyr_0.5.0      tools_3.3.2     
+[13] grid_3.3.2       gtable_0.2.0     DBI_0.5-1        dscr_0.1.1      
+[17] git2r_0.18.0     htmltools_0.3.5  yaml_2.1.14      lazyeval_0.2.0  
+[21] assertthat_0.1   rprojroot_1.2    digest_0.6.12    tibble_1.2      
+[25] shiny_1.0.0      reshape2_1.4.2   mime_0.5         evaluate_0.10   
+[29] rmarkdown_1.3    labeling_0.3     stringi_1.1.2    scales_0.4.1    
+[33] backports_1.0.5  httpuv_1.3.3    </code></pre>
+</div>
+
+<hr>
+<p>
+    This <a href="http://rmarkdown.rstudio.com">R Markdown</a> site was created with <a href="https://github.com/jdblischak/workflowr">workflowr</a>
+</p>
+<hr>
+
+<!-- To enable disqus, uncomment the section below and provide your disqus_shortname -->
+
+<!-- disqus
+  <div id="disqus_thread"></div>
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'rmarkdown'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function() {
+            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+    <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+-->
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
