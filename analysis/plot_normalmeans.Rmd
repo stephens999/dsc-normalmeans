@@ -23,7 +23,7 @@ Here I want to plot some graphs summarizing results of comparing methods for the
 
 ```{r}
 load("../output/dsc-normalmeans-files/res.RData")
-xtabs(RMSE ~ scenario + method, data=res)
+#aggregate(RMSE ~ scenario + method, data=res, FUN=mean)
 
 ```
 
@@ -39,7 +39,7 @@ res$MSE= res$RMSE^2
 ```
 
 ```{r}
-xtabs(RMSE ~ n + method + name , data=res)
+xtabs(RMSE ~ n + method + name, aggregate(RMSE ~n + method + name , data=res, FUN=mean))
 
 ```
 
@@ -82,7 +82,7 @@ print(mse_plot)
 Plot boxplot of results for n=1000, and the main three methods of interest: ash.ns, ebayesthresh and horseshoe. Notice that horseshoe does less well than ebayesthresh, contrasting with results
 in the original paper. I believe this is because they did a different problem, where sigma (errror variance) is considered unknown and to be estimated. 
 ```{r}
-bplot = function(res,scen.subset = c("big-normal-n1000","spiky-n1000","near-normal-n1000","flat-top-n1000","near-normal-nn-n1000"),
+bplot = function(res,scen.subset = c("big-normal-n1000","spiky-n1000","near-normal-n1000","flat-top-n1000"),
                    methods.subset = c("ash.ns","ebayesthresh","horseshoe"), criteria="MSE"){
   res.filter = dplyr::filter(res,scenario %in% scen.subset & method %in% methods.subset)
   
@@ -90,6 +90,7 @@ bplot = function(res,scen.subset = c("big-normal-n1000","spiky-n1000","near-norm
         ggplot(res.filter,aes(method,value,color=method)) +   geom_boxplot() + facet_grid(.~scenario)
 }
 bplot(res)
+bplot(res,scen.subset = c("bimodal-nn-n1000","vbignormal-nn-n1000","big-normal-nn-n1000","near-normal-nn-n1000","flat-top-nn-n1000"))
 ```
 
 ## Session Information
