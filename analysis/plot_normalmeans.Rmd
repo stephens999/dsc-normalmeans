@@ -23,8 +23,6 @@ Here I want to plot some graphs summarizing results of comparing methods for the
 
 ```{r}
 load("../output/dsc-normalmeans-files/res.RData")
-#aggregate(RMSE ~ scenario + method, data=res, FUN=mean)
-
 ```
 
 
