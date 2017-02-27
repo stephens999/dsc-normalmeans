@@ -6,6 +6,8 @@ ebayesthresh.wrapper=function(input,args=NULL){
 }
 
 ebayesthresh2beta_est = function(output){
-  return (list(beta_est=output$res*output$input$sebetahat))
+  if(is.list(output)){
+    return (list(beta_est=output$res*output$input$sebetahat))}
+  else {return(list(beta_est=NA))}
 }
 

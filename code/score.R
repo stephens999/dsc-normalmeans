@@ -12,8 +12,10 @@
 #'
 #'
 score = function(data, output){
+  if(is.numeric(output$beta_est)){
   return(list(RMSE=sqrt(mean((data$meta$beta-output$beta_est)^2)),
               MAE = median(abs(data$meta$beta-output$beta_est))))
+  } else {return(list(RMSE=NA,MAE=NA))}
 }
 
 score2 = function(data, output){

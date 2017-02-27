@@ -5,7 +5,8 @@ gdef = list(spiky=normalmix(c(.4,.2,.2,.2),c(0,0,0,0),c(.25,.5,1,2)),
             bignormal=normalmix(c(1),c(0),c(4)),
             bimodal=normalmix(c(0.5,0.5),c(-2,2),c(1,1)),
             flat_top=normalmix(rep(1/7,7),c(-1.5,-1,-0.5,0,0.5,1,1.5),rep(0.5,7)),
-            near_normal=normalmix(c(2/3,1/3),c(0,0),c(1,2))
+            near_normal=normalmix(c(2/3,1/3),c(0,0),c(1,2)),
+            vbignormal = normalmix(c(1),c(0),c(10))
             )
 
 add_named_scenarios = function(dsc,names,nsamp=1000,min_pi0=0,max_pi0=1,suffix=""){
@@ -98,4 +99,20 @@ if("bimodal" %in% names){
                  ),
                  seed=1:100)
   }
+
+  if("vbignormal" %in% names){
+    add_scenario(dsc,name=paste0("vbignormal",suffix),
+                 fn=rnormmix_datamaker,
+                 args=list(
+                   g=gdef$vbignormal,
+                   min_pi0=min_pi0,
+                   max_pi0=max_pi0,
+                   nsamp=nsamp,
+                   betahatsd=1
+                 ),
+                 seed=1:100)
+  }
+
+
 }
+

@@ -8,15 +8,15 @@ add_named_scenarios(dsc_normalmeans,c("spiky","near-normal","flat-top","skew","b
 add_named_scenarios(dsc_normalmeans,c("spiky","near-normal","flat-top","skew","big-normal","bimodal"), nsamp=100, suffix = "-n100")
 add_named_scenarios(dsc_normalmeans,c("spiky","near-normal","flat-top","skew","big-normal","bimodal"), nsamp=1000, suffix = "-n1000")
 
+
 #simulations with no null effects, t4 distribution
 add_named_scenarios(dsc_normalmeans,c("t4"), nsamp=10, suffix="-n10")
 add_named_scenarios(dsc_normalmeans,c("t4"), nsamp=100, suffix="-n100")
 add_named_scenarios(dsc_normalmeans,c("t4"), nsamp=1000, suffix="-n1000")
 
 
-##,"flat-top","skew","big-normal","bimodal"))
-
-add_named_scenarios(dsc_normalmeans,c("near-normal"),min_pi0=0,max_pi0=0,suffix="-nn-n1000")
+# more with no null effects
+add_named_scenarios(dsc_normalmeans,c("near-normal","big-normal","flat-top","vbignormal","bimodal"),min_pi0=0,max_pi0=0,suffix="-nn-n1000")
 
 source("add_methods.R")
 
