@@ -77,18 +77,48 @@ mse_plot=ggplot2::ggplot(res,
 print(mse_plot)
 ```
 
-Plot boxplot of results for n=1000, and the main three methods of interest: ash.ns, ebayesthresh and horseshoe. Notice that horseshoe does less well than ebayesthresh, contrasting with results
+Plot boxplot of results for n=1000, and the main methods of interest: ash.n, ash.ns, ebayesthresh and horseshoe. Notice that horseshoe does less well than ebayesthresh, contrasting with results
 in the original paper. I believe this is because they did a different problem, where sigma (errror variance) is considered unknown and to be estimated. 
 ```{r}
 bplot = function(res,scen.subset = c("big-normal-n1000","spiky-n1000","near-normal-n1000","flat-top-n1000"),
-                   methods.subset = c("ash.ns","ebayesthresh","horseshoe"), criteria="MSE"){
+                   methods.subset = c("bayes","ash.n","ash.ns","ebayesthresh","horseshoe"), criteria="MSE"){
   res.filter = dplyr::filter(res,scenario %in% scen.subset & method %in% methods.subset)
   
   res.filter$value = res.filter[[criteria]] 
         ggplot(res.filter,aes(method,value,color=method)) +   geom_boxplot() + facet_grid(.~scenario)
 }
 bplot(res)
+bplot(res,criteria="MAE")
 bplot(res,scen.subset = c("bimodal-nn-n1000","vbignormal-nn-n1000","big-normal-nn-n1000","near-normal-nn-n1000","flat-top-nn-n1000"))
+bplot(res,scen.subset = c("bimodal-nn-n1000","vbignormal-nn-n1000","big-normal-nn-n1000","near-normal-nn-n1000","flat-top-nn-n1000"),criteria="MAE")
+```
+
+
+```{r}
+library(magrittr)
+ # extract the rmse for bayes method
+  bayes_error = function(z,bres,criteria="RMSE"){
+    b = bres %>% dplyr::filter(seed==z$seed & scenario==z$scenario)
+    if(nrow(b)==1){return(b[[criteria]])} else {return(NA)}
+  }
+  bres = res %>% dplyr::filter(method=="bayes")
+  
+  res$bayes_rmse = rep(NA,nrow(res))
+  res$bayes_mae = rep(NA,nrow(res))
+  for(i in 1:nrow(res)){
+    res$bayes_rmse[i]=bayes_error(res[i,],bres,"RMSE")
+    res$bayes_mae[i]=bayes_error(res[i,],bres,"MAE")
+  }
+
+  res$RMSEdiff = res$RMSE - res$bayes_rmse
+  res$MAEdiff = res$MAE - res$bayes_mae
+   
+```
+
+
+```{r}
+bplot(res,criteria = "RMSEdiff")
+bplot(res,criteria = "MAEdiff")
 ```
 
 ## Session Information
