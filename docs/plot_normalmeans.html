@@ -310,7 +310,7 @@ div.tocify {
 
 
 <p><strong>Last updated:</strong> 2017-02-27</p>
-<p><strong>Code version:</strong> 6038d25</p>
+<p><strong>Code version:</strong> 94dd758</p>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
 <p>Here I want to plot some graphs summarizing results of comparing methods for the normalmeans problem.</p>
@@ -472,9 +472,9 @@ adjust the group aesthetic?
 geom_path: Each group consists of only one observation. Do you need to
 adjust the group aesthetic?</code></pre>
 <p><img src="figure/plot_normalmeans.Rmd/mse_plot-1.pdf" width="672" style="display: block; margin: auto;" /></p>
-<p>Plot boxplot of results for n=1000, and the main three methods of interest: ash.ns, ebayesthresh and horseshoe. Notice that horseshoe does less well than ebayesthresh, contrasting with results in the original paper. I believe this is because they did a different problem, where sigma (errror variance) is considered unknown and to be estimated.</p>
+<p>Plot boxplot of results for n=1000, and the main methods of interest: ash.n, ash.ns, ebayesthresh and horseshoe. Notice that horseshoe does less well than ebayesthresh, contrasting with results in the original paper. I believe this is because they did a different problem, where sigma (errror variance) is considered unknown and to be estimated.</p>
 <pre class="r"><code>bplot = function(res,scen.subset = c(&quot;big-normal-n1000&quot;,&quot;spiky-n1000&quot;,&quot;near-normal-n1000&quot;,&quot;flat-top-n1000&quot;),
-                   methods.subset = c(&quot;ash.ns&quot;,&quot;ebayesthresh&quot;,&quot;horseshoe&quot;), criteria=&quot;MSE&quot;){
+                   methods.subset = c(&quot;bayes&quot;,&quot;ash.n&quot;,&quot;ash.ns&quot;,&quot;ebayesthresh&quot;,&quot;horseshoe&quot;), criteria=&quot;MSE&quot;){
   res.filter = dplyr::filter(res,scenario %in% scen.subset &amp; method %in% methods.subset)
   
   res.filter$value = res.filter[[criteria]] 
@@ -482,10 +482,39 @@ adjust the group aesthetic?</code></pre>
 }
 bplot(res)</code></pre>
 <pre><code>Warning: Removed 10 rows containing non-finite values (stat_boxplot).</code></pre>
-<p><img src="figure/plot_normalmeans.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/plot_normalmeans.Rmd/unnamed-chunk-29-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>bplot(res,criteria=&quot;MAE&quot;)</code></pre>
+<pre><code>Warning: Removed 10 rows containing non-finite values (stat_boxplot).</code></pre>
+<p><img src="figure/plot_normalmeans.Rmd/unnamed-chunk-29-2.png" width="672" style="display: block; margin: auto;" /></p>
 <pre class="r"><code>bplot(res,scen.subset = c(&quot;bimodal-nn-n1000&quot;,&quot;vbignormal-nn-n1000&quot;,&quot;big-normal-nn-n1000&quot;,&quot;near-normal-nn-n1000&quot;,&quot;flat-top-nn-n1000&quot;))</code></pre>
 <pre><code>Warning: Removed 11 rows containing non-finite values (stat_boxplot).</code></pre>
-<p><img src="figure/plot_normalmeans.Rmd/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/plot_normalmeans.Rmd/unnamed-chunk-29-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>bplot(res,scen.subset = c(&quot;bimodal-nn-n1000&quot;,&quot;vbignormal-nn-n1000&quot;,&quot;big-normal-nn-n1000&quot;,&quot;near-normal-nn-n1000&quot;,&quot;flat-top-nn-n1000&quot;),criteria=&quot;MAE&quot;)</code></pre>
+<pre><code>Warning: Removed 11 rows containing non-finite values (stat_boxplot).</code></pre>
+<p><img src="figure/plot_normalmeans.Rmd/unnamed-chunk-29-4.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>library(magrittr)
+ # extract the rmse for bayes method
+  bayes_error = function(z,bres,criteria=&quot;RMSE&quot;){
+    b = bres %&gt;% dplyr::filter(seed==z$seed &amp; scenario==z$scenario)
+    if(nrow(b)==1){return(b[[criteria]])} else {return(NA)}
+  }
+  bres = res %&gt;% dplyr::filter(method==&quot;bayes&quot;)
+  
+  res$bayes_rmse = rep(NA,nrow(res))
+  res$bayes_mae = rep(NA,nrow(res))
+  for(i in 1:nrow(res)){
+    res$bayes_rmse[i]=bayes_error(res[i,],bres,&quot;RMSE&quot;)
+    res$bayes_mae[i]=bayes_error(res[i,],bres,&quot;MAE&quot;)
+  }
+
+  res$RMSEdiff = res$RMSE - res$bayes_rmse
+  res$MAEdiff = res$MAE - res$bayes_mae</code></pre>
+<pre class="r"><code>bplot(res,criteria = &quot;RMSEdiff&quot;)</code></pre>
+<pre><code>Warning: Removed 10 rows containing non-finite values (stat_boxplot).</code></pre>
+<p><img src="figure/plot_normalmeans.Rmd/unnamed-chunk-31-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>bplot(res,criteria = &quot;MAEdiff&quot;)</code></pre>
+<pre><code>Warning: Removed 10 rows containing non-finite values (stat_boxplot).</code></pre>
+<p><img src="figure/plot_normalmeans.Rmd/unnamed-chunk-31-2.png" width="672" style="display: block; margin: auto;" /></p>
 </div>
 <div id="session-information" class="section level2">
 <h2>Session Information</h2>
@@ -501,26 +530,18 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] ggplot2_2.2.1 mixfdr_1.0    ashr_2.1.5    dscr_0.1.1   
+[1] magrittr_1.5  ggplot2_2.2.1
 
 loaded via a namespace (and not attached):
- [1] Rcpp_0.12.9        git2r_0.18.0       workflowr_0.3.0   
- [4] plyr_1.8.4         iterators_1.0.8    tools_3.3.2       
- [7] digest_0.6.12      evaluate_0.10      tibble_1.2        
-[10] gtable_0.2.0       lattice_0.20-34    Matrix_1.2-8      
-[13] foreach_1.4.3      rstudioapi_0.6     DBI_0.5-1         
-[16] shiny_1.0.0        yaml_2.1.14        parallel_3.3.2    
-[19] dplyr_0.5.0        stringr_1.2.0      knitr_1.15.1      
-[22] REBayes_0.73       rprojroot_1.2      grid_3.3.2        
-[25] R6_2.2.0           EbayesThresh_1.3.2 rmarkdown_1.3     
-[28] whisker_0.3-2      reshape2_1.4.2     magrittr_1.5      
-[31] backports_1.0.5    scales_0.4.1       codetools_0.2-15  
-[34] htmltools_0.3.5    MASS_7.3-45        assertthat_0.1    
-[37] horseshoe_0.1.0    mime_0.5           colorspace_1.3-2  
-[40] xtable_1.8-2       httpuv_1.3.3       labeling_0.3      
-[43] stringi_1.1.2      Rmosek_7.1.2       lazyeval_0.2.0    
-[46] munsell_0.4.3      doParallel_1.0.10  pscl_1.4.9        
-[49] truncnorm_1.0-7    SQUAREM_2016.8-2  </code></pre>
+ [1] Rcpp_0.12.9      workflowr_0.3.0  knitr_1.15.1     munsell_0.4.3   
+ [5] xtable_1.8-2     colorspace_1.3-2 R6_2.2.0         stringr_1.2.0   
+ [9] plyr_1.8.4       dplyr_0.5.0      tools_3.3.2      grid_3.3.2      
+[13] gtable_0.2.0     DBI_0.5-1        git2r_0.18.0     dscr_0.1.1      
+[17] htmltools_0.3.5  yaml_2.1.14      lazyeval_0.2.0   assertthat_0.1  
+[21] rprojroot_1.2    digest_0.6.12    tibble_1.2       shiny_1.0.0     
+[25] reshape2_1.4.2   mime_0.5         evaluate_0.10    rmarkdown_1.3   
+[29] labeling_0.3     stringi_1.1.2    smashr_1.0.4     scales_0.4.1    
+[33] backports_1.0.5  httpuv_1.3.3    </code></pre>
 </div>
 
 <hr>
