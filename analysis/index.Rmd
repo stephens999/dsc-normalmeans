@@ -5,11 +5,10 @@ output:
     toc: false
 ---
 
-The goal of this new template is to simplify the setup and maintenance of a research website.
-Specifically,
+This repo does simulations to compare methods for the "normalmeans" problem.
+It compares `ashr` with `EbayesThresh` and the horseshoe prior. 
+It uses the [dscr](http://github.com/stephens999/dscr) framework to do the simulations.
+It is very much work in progress.
+Possibly we will switch these comparisons to the DSC2 framework in the future.
 
-*  Easier to build and extend the website using the new tools in the [rmarkdown][] package and [latest RStudio release][rstudio]
-*  Easier to deploy the website with Git and GitHub by only using one branch
-
-[rmarkdown]: http://rmarkdown.rstudio.com/rmarkdown_websites.htm
-[rstudio]: https://www.rstudio.com/products/rstudio/download/preview/
+*  [Some plots of the results](plot_normalmeans.html)
