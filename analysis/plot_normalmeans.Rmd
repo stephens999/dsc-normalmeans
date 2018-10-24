@@ -81,7 +81,7 @@ Plot boxplot of results for n=1000, and the main methods of interest: ash.n, ash
 in the original paper. I believe this is because they did a different problem, where sigma (errror variance) is considered unknown and to be estimated. 
 ```{r}
 bplot = function(res,scen.subset = c("big-normal-n1000","spiky-n1000","near-normal-n1000","flat-top-n1000"),
-                   methods.subset = c("bayes","ash.n","ash.ns","ebayesthresh","horseshoe"), criteria="MSE"){
+                   methods.subset = c("bayes","ash.n","ash.ns","ebayesthresh","ebayesthresh-new","ebnm","horseshoe"), criteria="MSE"){
   res.filter = dplyr::filter(res,scenario %in% scen.subset & method %in% methods.subset)
   
   res.filter$value = res.filter[[criteria]] 

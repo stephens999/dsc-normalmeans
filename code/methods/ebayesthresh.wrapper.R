@@ -1,6 +1,9 @@
 ebayesthresh.wrapper=function(input,args=NULL){
+  if(is.null(args)){args=list(NULL)}
+  args_default = list(x=input$betahat/input$sebetahat,prior="laplace", a=NA,threshrule="mean",sdev=1)
+  args = modifyList(args_default,args)
   res = do.call(EbayesThresh::ebayesthresh,
-                args= c(list(x=input$betahat/input$sebetahat,prior="laplace", a=NA,threshrule="mean",sdev=1)))
+                args= args)
 
   return(list(res=res, input=input))
 }
